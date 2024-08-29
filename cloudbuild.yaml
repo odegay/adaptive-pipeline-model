@@ -1,0 +1,24 @@
+steps:
+  # Build the Docker image for the batch job
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/model-train-batch-image:$SHORT_SHA', '-t', 'gcr.io/$PROJECT_ID/model-train-batch-image:latest', './model-train-batch']
+
+  # Push the Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/model-train-batch-image:$SHORT_SHA', 'gcr.io/$PROJECT_ID/model-train-batch-image:latest']
+
+  # Deploy the Cloud Function
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['functions', 'deploy', 'adaptive_pipeline_model_function', 
+          '--runtime', 'python39',
+          '--trigger-topic','adaptive-pipeline-workflow-topic',
+          '--source','./adaptive-pipeline-model-function'] 
+
+  # Deploy the Batch job configuration
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud batch jobs submit model-training-job \
+          --config=./batch-config/batch-job-config.yaml
