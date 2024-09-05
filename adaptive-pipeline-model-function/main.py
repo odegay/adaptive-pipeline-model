@@ -2,7 +2,7 @@ import os
 import google.auth
 from google.cloud import batch_v1
 
-def trigger_batch_job(event, context):
+def adaptive_pipeline_model_function(event, context):
     """Triggered by a message on a Pub/Sub topic and triggers a GCP Batch job."""
     
     # Authenticate and initialize the Batch client
