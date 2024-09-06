@@ -15,19 +15,3 @@ steps:
           '--runtime', 'python39',
           '--trigger-topic','adaptive-pipeline-workflow-topic',
           '--source','./adaptive-pipeline-model-function'] 
-  # Deploy the Batch job configuration
-  # Replace the placeholder with the project ID
-  - name: 'bash'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        sed "s|gcr.io/YOUR_PROJECT_ID|gcr.io/$PROJECT_ID|" ./batch-config/batch-job-config.yaml.template > ./batch-config/batch-job-config.yaml
-  # Submit the Batch job
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud batch jobs submit model-training-job \
-          --config=./batch-config/batch-job-config.yaml
