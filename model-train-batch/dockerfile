@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy your Python script and any other necessary files
+COPY configuration_schemas.py .
 COPY build_ffn_configured.py . 
 COPY main.py . 
 # Add any additional files or directories as needed

@@ -6,7 +6,7 @@ from adpipwfwconst import MSG_TYPE
 from adpipwfwconst import PIPELINE_TOPICS as TOPICS
 import logging
 import requests
-from build__ffn_configured import build_flexible_model
+from build_ffn_configured import build_flexible_model
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
