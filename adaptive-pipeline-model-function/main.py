@@ -57,15 +57,16 @@ def adaptive_pipeline_model_function(event, context):
     client = batch_v1.BatchServiceClient(credentials=credentials)
 
     # Use a consistent job name
-    job_name = f"projects/{project_id}/locations/us-central1/jobs/model-training-job"
+    #job_name = f"projects/{project_id}/locations/us-central1/jobs/model-training-job"
+    job_id = "model-training-job"
+    parent = f"projects/{project_id}/locations/us-central1"
 
     # Create the max_run_duration using protobuf Duration
     max_run_duration = duration_pb2.Duration()
     max_run_duration.seconds = 3600  # Set the duration to 3600 seconds (1 hour)
 
     # Generate the batch job configuration as a Python dictionary
-    batch_job_config_dict = {
-        'name': job_name,
+    batch_job_config_dict = {        
         'task_groups': [{
             'task_spec': {
                 'runnables': [{
@@ -88,10 +89,10 @@ def adaptive_pipeline_model_function(event, context):
 
     # Try deleting the previous job if it exists
     try:
-        client.delete_job(name=job_name)
-        logger.debug(f"Deleted previous job with name: {job_name}")
+        client.delete_job(name=f"{parent}/jobs/{job_id}")
+        logger.debug(f"Deleted previous job with job_id: {job_id}")
     except NotFound:
-        logger.debug(f"No existing job to delete: {job_name} not found.")
+        logger.debug(f"No existing job to delete: {job_id} not found.")
     except Exception as e:
         logger.debug(f"Error deleting previous job: {str(e)}")
 
@@ -102,17 +103,18 @@ def adaptive_pipeline_model_function(event, context):
     # Submit the Batch job
     try:
         job = client.create_job(
-            parent=f"projects/{project_id}/locations/us-central1",            
-            job=job_config  # Pass the Job object, not a dictionary
+            parent=parent,
+            job=job_config,
+            job_id=job_id  # Provide the job_id here
         )
-        logger.debug("Batch job triggered successfully.")
+        logger.debug(f"Batch job triggered successfully with job_id: {job_id}")
         
         # Poll the job status with retry mechanism
         max_retries = 5
         retry_count = 0
         while retry_count < max_retries:
             try:
-                job_status = client.get_job(name=job_name)
+                job_status = client.get_job(name=f"{parent}/jobs/{job_id}")
                 logger.debug(f"Job status: {job_status.status.state}")
                 break  # Exit the loop if the job is found
             except NotFound:
@@ -127,7 +129,7 @@ def adaptive_pipeline_model_function(event, context):
         logger.debug(f"Job is now in state: {job_status.status.state}")
 
     except AlreadyExists:
-        logger.debug(f"Job {job_name} is running.")
+        logger.debug(f"Job {job_id} already exists and is still running.")
     except Exception as e:
         logger.debug(f"Failed to submit Batch job: {str(e)}")
         logger.debug(f"Job configuration: {batch_job_config_dict}")

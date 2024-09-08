@@ -59,12 +59,12 @@ def adaptive_pipeline_get_model(pipeline_id: str) -> dict:
 # Function that is triggered by a cloud function to process the batch data    
 def train_model():
     # Example of a very basic model training logic
-    print("Starting model training...")
+    logger.debug("Starting model training...")
 
     # Dummy model training process
     model_result = 2 + 2
 
-    print(f"Model training completed. Result: {model_result}")
+    logger.debug(f"Model training completed. Result: {model_result}")
 
 if __name__ == "__main__":
     train_model()
