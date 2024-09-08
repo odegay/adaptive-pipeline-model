@@ -4,6 +4,7 @@ import json
 import google.auth
 from google.cloud import batch_v1
 from google.api_core.exceptions import AlreadyExists, NotFound
+from google.protobuf import duration_pb2
 import time
 import logging
 from adpipwfwconst import MSG_TYPE
@@ -57,6 +58,10 @@ def adaptive_pipeline_model_function(event, context):
 
     # Use a consistent job name
     job_name = f"projects/{project_id}/locations/us-central1/jobs/model-training-job"
+
+    # Create the max_run_duration using protobuf Duration
+    max_run_duration = duration_pb2.Duration()
+    max_run_duration.seconds = 3600  # Set the duration to 3600 seconds (1 hour)
 
     # Generate the batch job configuration as a Python dictionary
     batch_job_config_dict = {
