@@ -90,11 +90,14 @@ def adaptive_pipeline_model_function(event, context):
     except Exception as e:
         logger.debug(f"Error deleting previous job: {str(e)}")
 
+    # Convert the batch_job_config_dict to a Job object
+    job_config = batch_v1.Job(**batch_job_config_dict)
+
     # Submit the Batch job
     try:
         job = client.create_job(
             parent=f"projects/{project_id}/locations/us-central1",
-            job=batch_job_config_dict
+            job=job_config  # Pass the Job object, not a dictionary
         )
         logger.debug("Batch job triggered successfully.")
         
@@ -109,8 +112,9 @@ def adaptive_pipeline_model_function(event, context):
             job_status = client.get_job(name=job_name)
         
         logger.debug(f"Job is now in state: {job_status.status.state}")
-        
+
     except AlreadyExists:
         logger.debug(f"Job {job_name} already exists and is still running.")
     except Exception as e:
         logger.debug(f"Failed to submit Batch job: {str(e)}")
+        logger.debug(f"Job configuration: {batch_job_config_dict}")
