@@ -107,20 +107,27 @@ def adaptive_pipeline_model_function(event, context):
         )
         logger.debug("Batch job triggered successfully.")
         
-        # Poll the job status
-        job_status = client.get_job(name=job_name)
-        logger.debug(f"Job status: {job_status.status.state}")
-        
-        # Optionally, wait for the job to start running (optional step)
-        while job_status.status.state == batch_v1.JobStatus.State.PENDING:
-            logger.debug("Waiting for job to start running...")
-            time.sleep(5)
-            job_status = client.get_job(name=job_name)
+        # Poll the job status with retry mechanism
+        max_retries = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                job_status = client.get_job(name=job_name)
+                logger.debug(f"Job status: {job_status.status.state}")
+                break  # Exit the loop if the job is found
+            except NotFound:
+                logger.debug(f"Job not found yet, retrying ({retry_count + 1}/{max_retries})...")
+                time.sleep(5 * (2 ** retry_count))  # Exponential backoff (5s, 10s, 20s, etc.)
+                retry_count += 1
+
+        if retry_count == max_retries:
+            logger.error(f"Failed to retrieve job status after {max_retries} attempts.")
+            return
         
         logger.debug(f"Job is now in state: {job_status.status.state}")
 
     except AlreadyExists:
-        logger.debug(f"Job {job_name} already exists and is still running.")
+        logger.debug(f"Job {job_name} is running.")
     except Exception as e:
         logger.debug(f"Failed to submit Batch job: {str(e)}")
         logger.debug(f"Job configuration: {batch_job_config_dict}")
