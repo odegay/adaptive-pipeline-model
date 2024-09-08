@@ -96,8 +96,7 @@ def adaptive_pipeline_model_function(event, context):
     # Submit the Batch job
     try:
         job = client.create_job(
-            parent=f"projects/{project_id}/locations/us-central1",
-            name=job_name,
+            parent=f"projects/{project_id}/locations/us-central1",            
             job=batch_job_config_json  # Pass the Job object, not a dictionary
         )
         logger.debug("Batch job triggered successfully.")
