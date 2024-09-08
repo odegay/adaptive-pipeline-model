@@ -69,7 +69,7 @@ def adaptive_pipeline_model_function(event, context):
                         'commands': []  # Add any necessary commands here
                     }
                 }],
-                'max_run_duration': "3600s"
+                'max_run_duration': 3600
             },
             'task_count': 1,
             'parallelism': 1
