@@ -88,13 +88,13 @@ def adaptive_pipeline_model_function(event, context):
     }
 
     # Try deleting the previous job if it exists
-    try:
-        client.delete_job(name=f"{parent}/jobs/{job_id}")
-        logger.debug(f"Deleted previous job with job_id: {job_id}")
-    except NotFound:
-        logger.debug(f"No existing job to delete: {job_id} not found.")
-    except Exception as e:
-        logger.debug(f"Error deleting previous job: {str(e)}")
+    # try:
+    #     client.delete_job(name=f"{parent}/jobs/{job_id}")
+    #     logger.debug(f"Deleted previous job with job_id: {job_id}")
+    # except NotFound:
+    #     logger.debug(f"No existing job to delete: {job_id} not found.")
+    # except Exception as e:
+    #     logger.debug(f"Error deleting previous job: {str(e)}")
 
     # Convert the batch_job_config_dict to a JSON object
     #batch_job_config_json = json.dumps(batch_job_config_dict)
@@ -104,9 +104,10 @@ def adaptive_pipeline_model_function(event, context):
     try:
         job = client.create_job(
             parent=parent,
-            job=job_config,
-            job_id=job_id  # Provide the job_id here
+            job=job_config
         )
+        job_name = job.name  # Get the full job resource name, which includes the job ID
+        job_id = job_name.split('/')[-1]  # Extract just the job ID
         logger.debug(f"Batch job triggered successfully with job_id: {job_id}")
         
         # Poll the job status with retry mechanism
@@ -114,7 +115,7 @@ def adaptive_pipeline_model_function(event, context):
         retry_count = 0
         while retry_count < max_retries:
             try:
-                job_status = client.get_job(name=f"{parent}/jobs/{job_id}")
+                job_status = client.get_job(name=job_name)
                 logger.debug(f"Job status: {job_status.status.state}")
                 break  # Exit the loop if the job is found
             except NotFound:
@@ -129,7 +130,7 @@ def adaptive_pipeline_model_function(event, context):
         logger.debug(f"Job is now in state: {job_status.status.state}")
 
     except AlreadyExists:
-        logger.debug(f"Job {job_id} already exists and is still running.")
+        logger.debug(f"Job {job_name} already exists and is still running.")
     except Exception as e:
         logger.debug(f"Failed to submit Batch job: {str(e)}")
         logger.debug(f"Job configuration: {batch_job_config_dict}")
