@@ -90,14 +90,15 @@ def adaptive_pipeline_model_function(event, context):
     except Exception as e:
         logger.debug(f"Error deleting previous job: {str(e)}")
 
-    # Convert the batch_job_config_dict to a Job object
-    job_config = batch_v1.Job(**batch_job_config_dict)
+    # Convert the batch_job_config_dict to a JSON object
+    batch_job_config_json = json.dumps(batch_job_config_dict)   
 
     # Submit the Batch job
     try:
         job = client.create_job(
             parent=f"projects/{project_id}/locations/us-central1",
-            job=job_config  # Pass the Job object, not a dictionary
+            name=job_name,
+            job=batch_job_config_json  # Pass the Job object, not a dictionary
         )
         logger.debug("Batch job triggered successfully.")
         
