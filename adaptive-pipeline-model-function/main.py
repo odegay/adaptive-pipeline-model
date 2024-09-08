@@ -61,20 +61,20 @@ def adaptive_pipeline_model_function(event, context):
     # Generate the batch job configuration as a Python dictionary
     batch_job_config_dict = {
         'name': job_name,
-        'taskGroups': [{
-            'taskSpec': {
+        'task_groups': [{
+            'task_spec': {
                 'runnables': [{
                     'container': {
-                        'imageUri': f"gcr.io/{project_id}/model-train-batch-image:latest",
+                        'image_uri': f"gcr.io/{project_id}/model-train-batch-image:latest",
                         'commands': []  # Add any necessary commands here
                     }
                 }],
-                'maxRunDuration': "3600s"
+                'max_run_duration': "3600s"
             },
-            'taskCount': 1,
+            'task_count': 1,
             'parallelism': 1
         }],
-        'allocationPolicy': {
+        'allocation_policy': {
             'instances': [{
                 'policy': {}
             }]
@@ -91,13 +91,14 @@ def adaptive_pipeline_model_function(event, context):
         logger.debug(f"Error deleting previous job: {str(e)}")
 
     # Convert the batch_job_config_dict to a JSON object
-    batch_job_config_json = json.dumps(batch_job_config_dict)   
+    #batch_job_config_json = json.dumps(batch_job_config_dict)
+    job_config = batch_v1.Job(**batch_job_config_dict)    
 
     # Submit the Batch job
     try:
         job = client.create_job(
             parent=f"projects/{project_id}/locations/us-central1",            
-            job=batch_job_config_json  # Pass the Job object, not a dictionary
+            job=job_config  # Pass the Job object, not a dictionary
         )
         logger.debug("Batch job triggered successfully.")
         
