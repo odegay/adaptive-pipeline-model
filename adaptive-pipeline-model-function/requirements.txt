@@ -2,4 +2,4 @@ google-auth
 google-cloud-batch
 google-api-core
 adpipwfwconst==0.1.3
-adpipsvcfuncs==0.1.12
+adpipsvcfuncs==0.1.13
