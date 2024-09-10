@@ -56,6 +56,16 @@ def adaptive_pipeline_get_model(pipeline_id: str) -> dict:
     hidden_layers_model = build_flexible_model(model_config)
     logger.error(f"DEBUG MODE break for pipeline_id: {pipeline_id}")
 
+def dummy_pub_sub_message():
+    message_data = {
+        "pipeline_id": "TEST_PIPELINE_ID_FROM DOCKER",
+        "status": 10000      
+    } 
+    if not publish_to_pubsub(TOPICS.WORKFLOW_TOPIC.value, message_data):
+        return False
+    else:            
+        return True
+
 # Function that is triggered by a cloud function to process the batch data    
 def train_model():
     # Example of a very basic model training logic
