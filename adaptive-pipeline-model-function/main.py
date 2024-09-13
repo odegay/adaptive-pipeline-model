@@ -118,14 +118,14 @@ def adaptive_pipeline_model_function(event, context):
                 job_status = client.get_job(name=job_name)
                 logger.debug(f"Job status: {job_status.status.state}")
                 # break  # Exit the loop if the job is found
-            except NotFound:
-                logger.debug(f"Job not found yet, retrying ({retry_count + 1}/{max_retries})...")
                 time.sleep(5 * (2 ** retry_count))  # Exponential backoff (5s, 10s, 20s, etc.)
                 retry_count += 1
+                if retry_count == max_retries:
+                    logger.debug(f"Completed {max_retries} attempts.")
+                    break
+            except NotFound:
+                logger.debug(f"Job not found yet, retrying ({retry_count + 1}/{max_retries})...")
 
-        if retry_count == max_retries:
-            logger.error(f"Failed to retrieve job status after {max_retries} attempts.")
-            return
         
         logger.debug(f"Job is now in state: {job_status.status.state}")
 
