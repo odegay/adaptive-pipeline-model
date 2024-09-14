@@ -14,4 +14,5 @@ steps:
     args: ['functions', 'deploy', 'adaptive_pipeline_model_function', 
           '--runtime', 'python39',
           '--trigger-topic','adaptive-pipeline-workflow-topic',
-          '--source','./adaptive-pipeline-model-function'] 
+          '--source','./adaptive-pipeline-model-function',
+          '--timeout','180s']
