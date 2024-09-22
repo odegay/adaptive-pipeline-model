@@ -83,10 +83,7 @@ def adaptive_pipeline_model_function(event, context):
         }],
         'allocation_policy': {  # Updated allocation policy
             'instances': [{
-                'policy': {
-                    'machineType': 'e2-highcpu-2',
-                    'provisioningModel': 'STANDARD'
-                }
+                'policy': {}
             }]
         },
         'logs_policy': {
