@@ -6,6 +6,7 @@ from google.cloud import batch_v1
 from google.api_core.exceptions import AlreadyExists, NotFound
 from google.protobuf import duration_pb2
 import time
+import datetime
 import logging
 from adpipwfwconst import MSG_TYPE
 
@@ -110,25 +111,34 @@ def adaptive_pipeline_model_function(event, context):
         job_id = job_name.split('/')[-1]  # Extract just the job ID
         logger.debug(f"Batch job triggered successfully with job_id: {job_id}")
         
-        # Poll the job status with retry mechanism
-        max_retries = 5
+        # Poll the job status with dynamic retries and a time limit of 8 minutes
+        max_duration = 8 * 60  # 8 minutes in seconds
+        start_time = datetime.datetime.now()
         retry_count = 0
+        polling_interval = 15  # initial polling interval in seconds
+        max_retries = 33  # Arbitrary high number to prevent infinite retries, based on 8 minutes and 15s intervals
+
         while retry_count < max_retries:
             try:
+                 # Check if we're nearing the time limit
+                elapsed_time = (datetime.datetime.now() - start_time).total_seconds()
+                if elapsed_time >= max_duration:
+                    logger.debug("Time limit reached, stopping the job status polling.")
+                    break
+
                 job_status = client.get_job(name=job_name)
                 logger.debug(f"Job status: {job_status.status.state}")
-                break  # Exit the loop if the job is found
+            
+                # Exit the loop if the job is found or completed
+                if job_status.status.state in ["SUCCEEDED", "FAILED", "CANCELLED"]:
+                    break                
             except NotFound:
-                logger.debug(f"Job not found yet, retrying ({retry_count + 1}/{max_retries})...")
-                time.sleep(5 * (2 ** retry_count))  # Exponential backoff (5s, 10s, 20s, etc.)
-                retry_count += 1
-
-        if retry_count == max_retries:
-            logger.error(f"Failed to retrieve job status after {max_retries} attempts.")
-            return
-        
-        logger.debug(f"Job is now in state: {job_status.status.state}")
-
+                logger.debug(f"Job not found yet, retrying ({retry_count + 1})...")
+            except Exception as e:
+                logger.debug(f"Error getting job status: {str(e)}")
+            time.sleep(polling_interval)
+            retry_count += 1        
+        logger.debug(f"Exiting the job status polling loop after {retry_count} retries. The job status is: {job_status.status.state}")
     except AlreadyExists:
         logger.debug(f"Job {job_name} already exists and is still running.")
     except Exception as e:
