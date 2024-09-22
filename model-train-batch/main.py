@@ -88,6 +88,7 @@ def train_model():
     else:
         logger.error("Failed to publish the message to the Pub/Sub topic")
         return
+    logging.shutdown()
 
 if __name__ == "__main__":
     train_model()

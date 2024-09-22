@@ -67,7 +67,7 @@ def adaptive_pipeline_model_function(event, context):
     max_run_duration.seconds = 3600  # Set the duration to 3600 seconds (1 hour)
 
     # Generate the batch job configuration as a Python dictionary
-    batch_job_config_dict = {        
+    batch_job_config_dict = {
         'task_groups': [{
             'task_spec': {
                 'runnables': [{
@@ -76,17 +76,25 @@ def adaptive_pipeline_model_function(event, context):
                         'commands': []  # Add any necessary commands here
                     }
                 }],
-                'max_run_duration': max_run_duration # Set the maximum run duration
+                'max_run_duration': max_run_duration  # Set the maximum run duration
             },
             'task_count': 1,
             'parallelism': 1
         }],
-        'allocation_policy': {
+        'allocation_policy': {  # Updated allocation policy
             'instances': [{
-                'policy': {}
+                'policy': {
+                    'machineType': 'e2-highcpu-2',
+                    'provisioningModel': 'STANDARD'
+                }
             }]
+        },
+        'logs_policy': {
+            'destination': 'CLOUD_LOGGING'  # Ensure logs are sent to Cloud Logging
         }
     }
+
+    
 
     # Try deleting the previous job if it exists
     # try:
