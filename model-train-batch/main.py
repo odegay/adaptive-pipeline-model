@@ -9,7 +9,7 @@ import logging
 import requests
 from build_ffn_configured import build_flexible_model
 
-root_logger = logging.getLogger()
+root_logger = logging.getLogger('batch_logger')
 root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
 if not root_logger.handlers:
     # Create console handler and set its log level to DEBUG
