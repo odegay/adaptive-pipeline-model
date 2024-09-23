@@ -1,5 +1,6 @@
 import base64
 import sys
+import os
 import json
 from adpipsvcfuncs import publish_to_pubsub, load_current_pipeline_data, save_current_pipeline_data
 from adpipsvcfuncs import fetch_gcp_secret, load_valid_json
@@ -94,11 +95,25 @@ def train_model():
     print("Testing print to stdout")
     sys.stdout.write("Testing sys.stdout.write\n")
 
+
     logger.debug("Testing DEBUG log")
     logger.info("Testing INFO log")
     logger.warning("Testing WARNING log")
     logger.error("Testing ERROR log")
     logger.critical("Testing CRITICAL log")    
+
+    logger.debug("Loading pipeline data...")
+    pipeline_id = os.getenv('PIPELINE_ID')
+    try:
+        pipeline_id = str(pipeline_id)
+        if pipeline_id is None:
+            logger.error("pipeline_id is not set")
+        else:
+            logger.debug(f"pipeline_id: {pipeline_id}")
+            adaptive_pipeline_get_model(pipeline_id)
+    except Exception as e:
+        logger.error(f"Failed to load pipeline data. Error: {e}")       
+    
     
     # Dummy model training process
     model_result = 2 + 2

@@ -68,6 +68,9 @@ def adaptive_pipeline_model_function(event, context):
     max_run_duration = duration_pb2.Duration()
     max_run_duration.seconds = 3600  # Set the duration to 3600 seconds (1 hour)
 
+    #hardcoded pipeline_id for testing
+    pipeline_id = "MxV13EsqWUkE6fcl69ir"
+
     # Generate the batch job configuration as a Python dictionary
     batch_job_config_dict = {
         'task_groups': [{
@@ -75,7 +78,12 @@ def adaptive_pipeline_model_function(event, context):
                 'runnables': [{
                     'container': {
                         'image_uri': f"gcr.io/{project_id}/model-train-batch-image:latest",
-                        'commands': []  # Add any necessary commands here
+                        'commands': [],  # Add any necessary commands here
+                        'environment': {
+                            'variables': {
+                                'PIPELINE_ID': pipeline_id  # Pass the pipeline_id to the Batch job,
+                            }
+                        }
                     }
                 }],
                 'max_run_duration': max_run_duration  # Set the maximum run duration
