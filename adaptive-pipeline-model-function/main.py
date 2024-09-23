@@ -135,7 +135,8 @@ def adaptive_pipeline_model_function(event, context):
                 logger.debug(f"Job status: {job_status.status.state}")
             
                 # Exit the loop if the job is found or completed
-                if job_status.status.state in ["SUCCEEDED", "FAILED", "CANCELLED"]:
+                if job_status.status.state in [4, 5]:
+                    logger.debug(f"Job is completed, exiting the loop. The status is: {job_status.status.state}")
                     break                
             except NotFound:
                 logger.debug(f"Job not found yet, retrying ({retry_count + 1})...")

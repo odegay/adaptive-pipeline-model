@@ -12,8 +12,10 @@ from build_ffn_configured import build_flexible_model
 logger = logging.getLogger('batch_logger')
 # Trace if the logger is inheriting anything from its parent
 if logger.parent:
+    logger.debug(f"Batch logger parent: {logger.parent.name}")
     print(f"Batch logger parent: {logger.parent.name}")
 else:
+    logger.debug("Batch logger has no parent")
     print("Batch logger has no parent") 
 
 # Ensure no handlers are inherited from the root logger
@@ -77,6 +79,14 @@ def dummy_pub_sub_message():
 
 # Function that is triggered by a cloud function to process the batch data    
 def train_model():
+    # Trace if the logger is inheriting anything from its parent
+    if logger.parent:
+        logger.debug(f"Batch logger parent: {logger.parent.name}")
+        print(f"Batch logger parent: {logger.parent.name}")
+    else:
+        logger.debug("Batch logger has no parent")
+        print("Batch logger has no parent") 
+    
     # Example of a very basic model training logic
     logger.debug("Starting model training...")
 
