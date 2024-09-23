@@ -9,9 +9,18 @@ import logging
 import requests
 from build_ffn_configured import build_flexible_model
 
-root_logger = logging.getLogger('batch_logger')
-root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
-if not root_logger.handlers:
+logger = logging.getLogger('batch_logger')
+# Trace if the logger is inheriting anything from its parent
+if logger.parent:
+    print(f"Batch logger parent: {logger.parent.name}")
+else:
+    print("Batch logger has no parent") 
+
+# Ensure no handlers are inherited from the root logger
+logger.handlers.clear()
+
+logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
+if not logger.handlers:
     # Create console handler and set its log level to DEBUG
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
@@ -19,10 +28,10 @@ if not root_logger.handlers:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     # Add the handler to the root logger
-    root_logger.addHandler(ch)
+    logger.addHandler(ch)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Function to load data from the csv file located in the GCS bucket to the DataFrame
 def load_data_from_gcs_bucket(bucket_name: str, file_name: str) -> dict:
