@@ -10,8 +10,10 @@ import datetime
 import logging
 from adpipwfwconst import MSG_TYPE
 
-#Function triggers with the message type MSG_TYPE.GENERATE_NEW_MODEL = 5, recevied from the adaptive-pipeline-workflow-topic
+BATCH_JOB_STATUS_SCHEDULED = 2
+BATCH_JOB_STATUS_COMPLETED = 4
 
+#Function triggers with the message type MSG_TYPE.GENERATE_NEW_MODEL = 5, recevied from the adaptive-pipeline-workflow-topic
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
 if not root_logger.handlers:
@@ -135,8 +137,8 @@ def adaptive_pipeline_model_function(event, context):
                 logger.debug(f"Job status: {job_status.status.state}")
             
                 # Exit the loop if the job is found or completed
-                if job_status.status.state in [4, 5]:
-                    logger.debug(f"Job is completed, exiting the loop. The status is: {job_status.status.state}")
+                if job_status.status.state == BATCH_JOB_STATUS_SCHEDULED or job_status.status.state == BATCH_JOB_STATUS_COMPLETED:
+                    logger.debug(f"Job is schedulled or completed, exiting the loop. The status is: {job_status.status.state}")
                     break                
             except NotFound:
                 logger.debug(f"Job not found yet, retrying ({retry_count + 1})...")
