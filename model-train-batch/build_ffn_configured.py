@@ -133,7 +133,7 @@ def build_flexible_model(input_tensor: tf.Tensor, config_json: str) -> tf.Tensor
         if layer_type == 'c' and len(x.shape) != 4: 
             raise ValueError(f"Input to 'Conv2D' should be a 4D tensor. Got {x.shape} tensor instead.")
         # Print layer parameters for debugging
-        logger.debug("Configured layer with params:", stripped_layer_params)
+        logger.debug(f"Configured layer with params: {stripped_layer_params}")
         # Add layer to the model
         x = LayerType(**stripped_layer_params)(x)
         x = perform_layer_operations(x, layer_params, activation_mapping)
