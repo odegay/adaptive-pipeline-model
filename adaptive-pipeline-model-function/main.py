@@ -14,9 +14,12 @@ BATCH_JOB_STATUS_SCHEDULED = 2
 BATCH_JOB_STATUS_COMPLETED = 4
 
 #Function triggers with the message type MSG_TYPE.GENERATE_NEW_MODEL = 5, recevied from the adaptive-pipeline-workflow-topic
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
-if not root_logger.handlers:
+# root_logger = logging.getLogger()
+# root_logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
+if not logger.handlers:
     # Create console handler and set its log level to DEBUG
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
@@ -24,10 +27,7 @@ if not root_logger.handlers:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     # Add the handler to the root logger
-    root_logger.addHandler(ch)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # Capture DEBUG, INFO, WARNING, ERROR, CRITICAL
+    logger.addHandler(ch)
 
 def validate_pubsub_message(event):
     """Validate the Pub/Sub message."""

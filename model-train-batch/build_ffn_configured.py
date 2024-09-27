@@ -9,14 +9,27 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.activations import relu, sigmoid, tanh
 from tensorflow.keras.layers import LeakyReLU, PReLU, ELU
 from configuration_schemas import ffn_config_schema, short_ffn_config_schema 
+import logging
+
+logger = logging.getLogger('batch_logger')
+if not logger.handlers:
+    # Create console handler and set its log level to DEBUG
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    # Create formatter and add it to the handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    # Add the handler to the root logger
+    logger.addHandler(ch)
+
 def validate_json(data: dict, schema: dict) -> bool:
     try: 
         jsonschema.validate(instance=data, schema=schema)
-        print("Validation passed!")
+        logger.debug("Validation passed!")
         return True
     except jsonschema.exceptions.ValidationError as err:
-        print("Validation failed!")
-        print(err.message)
+        logger.debug("Validation failed!")
+        logger.debug(err.message)
         return False
 
 def get_mappings():
@@ -120,7 +133,7 @@ def build_flexible_model(input_tensor: tf.Tensor, config_json: str) -> tf.Tensor
         if layer_type == 'c' and len(x.shape) != 4: 
             raise ValueError(f"Input to 'Conv2D' should be a 4D tensor. Got {x.shape} tensor instead.")
         # Print layer parameters for debugging
-        print("Configured layer with params:", stripped_layer_params)
+        logger.debug("Configured layer with params:", stripped_layer_params)
         # Add layer to the model
         x = LayerType(**stripped_layer_params)(x)
         x = perform_layer_operations(x, layer_params, activation_mapping)
