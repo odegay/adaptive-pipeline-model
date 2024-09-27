@@ -1,0 +1,1 @@
+gcloud batch jobs submit --project=samp-170518 --region=us-central1 --config=bc.json

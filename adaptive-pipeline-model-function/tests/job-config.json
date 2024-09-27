@@ -1,0 +1,34 @@
+{
+    "taskGroups": [
+      {
+        "taskSpec": {
+          "runnables": [
+            {
+              "container": {
+                "imageUri": "gcr.io/samp-170518/model-train-batch-image:latest",
+                "commands": []
+              }
+            }
+          ],
+          "maxRunDuration": 3600,
+          "environment": {
+            "variables": {
+              "PIPELINE_ID": "MxV13EsqWUkE6fcl69ir"
+            }
+          }
+        },
+        "taskCount": 1,
+        "parallelism": 1
+      }
+    ],
+    "allocationPolicy": {
+      "instances": [
+        {
+          "policy": {}
+        }
+      ]
+    },
+    "logsPolicy": {
+      "destination": "CLOUD_LOGGING"
+    }
+  }

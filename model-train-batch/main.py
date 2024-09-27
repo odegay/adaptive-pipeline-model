@@ -65,7 +65,7 @@ def adaptive_pipeline_get_model(pipeline_id: str) -> dict:
     
     model_config = pipeline_data.get('current_configuration')
 
-    hidden_layers_model = build_flexible_model(model_config)
+    hidden_layers_model = build_flexible_model(tf.keras.Input(shape=(10,)), model_config)
     logger.error(f"DEBUG MODE break for pipeline_id: {pipeline_id}")
 
 def dummy_pub_sub_message():

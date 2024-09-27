@@ -78,15 +78,15 @@ def adaptive_pipeline_model_function(event, context):
                 'runnables': [{
                     'container': {
                         'image_uri': f"gcr.io/{project_id}/model-train-batch-image:latest",
-                        'commands': [],  # Add any necessary commands here
-                        'environment': {
+                        'commands': []  # Add any necessary commands here                       
+                    }
+                }],
+                'max_run_duration': max_run_duration,  # Set the maximum run duration
+                'environment': {
                             'variables': {
                                 'PIPELINE_ID': pipeline_id  # Pass the pipeline_id to the Batch job,
                             }
                         }
-                    }
-                }],
-                'max_run_duration': max_run_duration  # Set the maximum run duration
             },
             'task_count': 1,
             'parallelism': 1
