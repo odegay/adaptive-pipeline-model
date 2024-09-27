@@ -8,6 +8,7 @@ from adpipwfwconst import MSG_TYPE
 from adpipwfwconst import PIPELINE_TOPICS as TOPICS
 import logging
 import requests
+import tensorflow as tf
 from build_ffn_configured import build_flexible_model
 
 logger = logging.getLogger('batch_logger')
