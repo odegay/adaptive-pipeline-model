@@ -10,6 +10,7 @@ import logging
 import requests
 import tensorflow as tf
 from build_ffn_configured import build_flexible_model
+from load_features import main_training_process
 
 logger = logging.getLogger('batch_logger')
 # Trace if the logger is inheriting anything from its parent
@@ -66,8 +67,14 @@ def adaptive_pipeline_get_model(pipeline_id: str) -> dict:
     
     model_config = pipeline_data.get('current_configuration')
 
-    hidden_layers_model = build_flexible_model(tf.keras.Input(shape=(10,)), model_config)
+    train_features_tensor, train_output_tensor, test_features_tensor, test_output_tensor = main_training_process()
+
+    # Create a Keras input layer using the shape of the train_features_tensor
+    input_tensor = tf.keras.Input(shape=train_features_tensor.shape[1:])
+
+    hidden_layers_model = build_flexible_model(input_tensor, model_config)
     logger.error(f"DEBUG MODE break for pipeline_id: {pipeline_id}")
+    logger.debug(f"DEBUG MODE resulting model for pipeline_id: {pipeline_id}: {hidden_layers_model.summary()}")
 
 def dummy_pub_sub_message():
     message_data = {
@@ -97,6 +104,7 @@ def train_model():
     sys.stdout.write("Testing sys.stdout.write\n")
 
 
+
     logger.debug("Testing DEBUG log")
     logger.info("Testing INFO log")
     logger.warning("Testing WARNING log")
@@ -105,6 +113,7 @@ def train_model():
 
     logger.debug("Loading pipeline data...")
     pipeline_id = os.getenv('PIPELINE_ID')
+
     try:
         pipeline_id = str(pipeline_id)
         if pipeline_id is None:

@@ -122,6 +122,7 @@ def build_flexible_model(input_tensor: tf.Tensor, config_json: str) -> tf.Tensor
     # Call validate function
     if not validate_json(config, short_ffn_config_schema):
         raise ValueError("Invalid JSON configuration")
+    
     x = input_tensor
     previous_layer_output = None
     # Process each layer according to config
