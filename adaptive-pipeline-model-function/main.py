@@ -9,6 +9,7 @@ import time
 import datetime
 import logging
 from adpipwfwconst import MSG_TYPE
+from adpipsvcfuncs import publish_to_pubsub, load_current_pipeline_data, save_current_pipeline_data
 
 BATCH_JOB_STATUS_SCHEDULED = 2
 BATCH_JOB_STATUS_COMPLETED = 4
@@ -49,11 +50,29 @@ def validate_pubsub_message(event):
         logger.error("Message does not contain data field. Event: {event}")
         return None
 
-def adaptive_pipeline_model_function(event, context):
+def adaptive_pipeline_model_function(event, context):    
     """Triggered by a message on a Pub/Sub topic and triggers a GCP Batch job."""
+    pubsub_message = ""
+    if 'data' in event:
+        pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+        pubsub_message = json.loads(pubsub_message)
+        logger.debug(f"Decoded Pub/Sub message: {pubsub_message}")
+    else:
+        logger.debug("Data is missing in the event")
+        return False   
+
     if (validate_pubsub_message(event) is None):
         logger.debug("The Pub/Sub message didn't pass the validation. See the reason in the logs. Exiting.")
         return
+    
+    pipeline_id = pubsub_message['pipeline_id']
+
+    pipeline_data = load_current_pipeline_data(pipeline_id)
+    if pipeline_data is None:
+        logger.error(f"Failed to load the pipeline data for pipeline_id: {pipeline_id}")
+        return f"Failed to load the pipeline data for pipeline_id: {pipeline_id}"
+    else:
+        logger.debug(f"Loaded pipeline data for pipeline_id: {pipeline_id}. Data: {pipeline_data}")
         
     # Authenticate and initialize the Batch client
     credentials, project_id = google.auth.default()
@@ -69,7 +88,7 @@ def adaptive_pipeline_model_function(event, context):
     max_run_duration.seconds = 3600  # Set the duration to 3600 seconds (1 hour)
 
     #hardcoded pipeline_id for testing
-    pipeline_id = "MxV13EsqWUkE6fcl69ir"
+    #spipeline_id = "MxV13EsqWUkE6fcl69ir"
 
     # Generate the batch job configuration as a Python dictionary
     batch_job_config_dict = {
